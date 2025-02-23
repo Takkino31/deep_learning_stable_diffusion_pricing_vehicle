@@ -28,7 +28,7 @@ car_pricing_stable_diffusion/
 
 ```bash
 git clone https://github.com/Takkino31/deep_learning_stable_diffusion_pricing_vehicle
-cd car_pricing_stable_diffusion
+cd deep_learning_stable_diffusion_pricing_vehicle
 ```
 
 ### 2. Créer un environnement virtuel
@@ -93,6 +93,14 @@ Le script générera une image de la voiture décrite et affichera le prix préd
 - tensorflow
 - Pillow
 - matplotlib
-```
+- scikit-learn
+- accelerate
+- streamlit
 
 Cela inclut toutes les informations nécessaires pour la configuration, l'utilisation et l'exécution du projet.
+
+## 4 Lancer l’application sur le navigateur
+
+```bash
+streamlit run app.py
+```

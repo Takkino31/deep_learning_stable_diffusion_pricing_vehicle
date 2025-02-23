@@ -4,3 +4,6 @@ torch
 tensorflow
 Pillow
 matplotlib
+scikit-learn
+accelerate
+streamlit
