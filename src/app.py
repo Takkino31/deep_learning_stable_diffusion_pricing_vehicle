@@ -1,19 +1,14 @@
 import streamlit as st
 import torch
+import base64
+import tempfile
+from io import BytesIO
 from diffusers import StableDiffusionPipeline
 from predict_price import predict_car_price
-import matplotlib.pyplot as plt
-from io import BytesIO
-import base64
-
-def generate_prompt(vehicle_data):
-    """Génère un prompt Stable Diffusion basé sur les caractéristiques du véhicule."""
-    return (f"A {vehicle_data['paint_color']} {vehicle_data['year']} {vehicle_data['manufacturer']} "
-            f"{vehicle_data['model']} in {vehicle_data['condition']} condition, "
-            f"with {vehicle_data['cylinders']} cylinders and {vehicle_data['transmission']} transmission.")
+from generate_image import generate_car_image
 
 # Initialisation de l'interface Streamlit
-st.title("Generateur de prix et d'images de voitures.")
+st.title("Générateur de Prix et d'Images de Voitures")
 
 # Formulaire pour entrer les caractéristiques du véhicule
 with st.form("car_form"):
@@ -27,6 +22,7 @@ with st.form("car_form"):
     submit = st.form_submit_button("Générer")
 
 if submit:
+    # Création du dictionnaire des caractéristiques du véhicule
     vehicle_info = {
         "paint_color": paint_color,
         "year": year,
@@ -36,24 +32,19 @@ if submit:
         "cylinders": cylinders,
         "transmission": transmission
     }
-    
+
     with st.spinner("Génération en cours... Veuillez patienter."):
-        # Prédire le prix
+        # Prédiction du prix
         predicted_price = predict_car_price(vehicle_info)
-        
-        # Charger Stable Diffusion sur CPU uniquement lors de la génération
-        device = torch.device("cpu")
-        pipe = StableDiffusionPipeline.from_pretrained("CompVis/stable-diffusion-v1-4").to(device)
-        
-        # Générer l'image
-        prompt = generate_prompt(vehicle_info)
-        image = pipe(prompt).images[0]
-        
-        # Sauvegarder l'image en mémoire pour affichage
+
+        # Génération de l'image
+        image = generate_car_image(vehicle_info)
+
+        # Sauvegarde de l'image pour affichage
         img_bytes = BytesIO()
         image.save(img_bytes, format="PNG")
         img_base64 = base64.b64encode(img_bytes.getvalue()).decode()
-        
+
     # Affichage des résultats
-    st.success(f"Prix estimé : {predicted_price}")
-    st.image(image, caption="Image générée", use_column_width=True)
+    st.success(f"Prix estimé : {predicted_price} CFA")
+    st.image(image, caption="Image générée", use_container_width=True)

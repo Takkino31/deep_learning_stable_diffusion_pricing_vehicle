@@ -1,7 +1,9 @@
 import torch
 from diffusers import StableDiffusionPipeline
-import matplotlib.pyplot as plt
-from predict_price import predict_car_price
+
+# Charger Stable Diffusion une seule fois pour éviter le rechargement à chaque appel
+device = torch.device("cpu")
+pipe = StableDiffusionPipeline.from_pretrained("CompVis/stable-diffusion-v1-4").to(device)
 
 def generate_prompt(vehicle_data):
     """Génère un prompt Stable Diffusion basé sur les caractéristiques du véhicule."""
@@ -9,34 +11,9 @@ def generate_prompt(vehicle_data):
             f"{vehicle_data['model']} in {vehicle_data['condition']} condition, "
             f"with {vehicle_data['cylinders']} cylinders and {vehicle_data['transmission']} transmission.")
 
-# Informations sur la voiture avec des valeurs par défaut pour les champs manquants
-vehicle_info = {
-    "paint_color": "red",
-    "year": "2022",
-    "manufacturer": "Toyota",
-    "model": "Corolla",
-    "condition": "excellent",
-    "cylinders": "4",
-    "transmission": "automatic"
-}
-# Prédire le prix
-predicted_price = predict_car_price(vehicle_info)
-print(f"Prix estimé du véhicule : {predicted_price} CFA")
+def generate_car_image(vehicle_data):
+    """Génère une image de voiture à partir des caractéristiques fournies."""
+    prompt = generate_prompt(vehicle_data)
+    image = pipe(prompt).images[0]
+    return image
 
-
-
-# Force PyTorch à utiliser le CPU
-device = torch.device("cpu")
-# Charger Stable Diffusion
-pipe = StableDiffusionPipeline.from_pretrained("CompVis/stable-diffusion-v1-4").to(device)
-
-
-
-# Générer l'image
-prompt = generate_prompt(vehicle_info)
-image = pipe(prompt).images[0]
-
-# Afficher l'image
-plt.imshow(image)
-plt.axis("off")
-plt.show()
